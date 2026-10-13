@@ -1,6 +1,6 @@
 # 02 · Tendencias, tracción y lo que dice la comunidad
 
-> Escaneo del 28 de septiembre de 2026 sobre X, YouTube, GitHub, Hacker News, blogs y podcasts, **actualizado el 12 de octubre de 2026**. Reddit no fue accesible directamente; lo que se cita de Reddit es de segunda mano.
+> Escaneo del 28 de septiembre de 2026 sobre X, YouTube, GitHub, Hacker News, blogs y podcasts, **actualizado el 12 de octubre de 2026**. Reddit bloquea el acceso programático (403 "whoa there, pardner" sin sesión u OAuth), así que los hilos se leyeron a través del archivo público pullpush.io; sus puntajes pueden estar desactualizados.
 
 ## Qué cambió entre el 20 de septiembre y el 12 de octubre
 
@@ -76,6 +76,22 @@ Efecto secundario del video de NetworkChuck: la discusión #13999 "3M tokens gon
 - Issues más comentadas: #373 agentes ociosos consumieron cientos de miles de tokens en una noche (abierta); #390 circuit breaker para loops (abierta desde marzo); #3154 "1 % de Claude Max por minuto"; #7601 un agente imprimió un secreto en texto plano en la UI (abierta); #2301 rant "otro desastre de IA" por fallos de instalación.
 - Features más pedidas y no entregadas: LLMs locales vía Ollama (#187, 66 votos, abierta desde marzo) y vía LiteLLM (#14104); onboarding sin Codex/Claude Code (discusión #14385); adapter para Copilot CLI (#2092); chat con agentes (#49, ahora 🟡 en roadmap); OpenRouter (#1068).
 - Issues calientes de las últimas 3 semanas: #14093 todos los agentes Claude Code fallan con "ACP agent reported a terminal access failure" (26 sep, 16 comentarios); #14182/#13725/#13805 **las conexiones por suscripción de Anthropic expiran a las ~8 h** porque sólo se guarda el access token (tres duplicados abiertos); #13889 el Claude Code empaquetado no corre modelos nuevos; #13949/#15161 no se puede editar el rol de un agente tras crearlo; #15053 onboarding con suscripción OpenAI falla con gpt-6.1-sol; #14600/#14537/#15483 deadlocks de recuperación que dejan issues congelados; **#15027 agentes sin run token actúan como board en modo `local_trusted`** (3 oct); #15531 el proxy de red del sandbox tumba el servidor (8 oct).
+
+## Hacker News y Reddit, leídos directamente (12 oct)
+
+**Hacker News** (API de Algolia): 11 publicaciones sobre Paperclip entre marzo y septiembre de 2026 y ninguna superó los 6 puntos ni tuvo más de un comentario. Las últimas dos (24 sep, 3 y 4 puntos, 0 comentarios): https://news.ycombinator.com/item?id=49831929 · https://news.ycombinator.com/item?id=49830940. Hay un "Show HN" de un competidor con la misma idea (9 sep): https://news.ycombinator.com/item?id=49633106. En los 717 comentarios de 2026 que mencionan "paperclip", ninguno discute el producto en profundidad. Conclusión: para la audiencia técnica clásica de HN, Paperclip no existe; su comunidad está en YouTube, X, Discord y Reddit.
+
+**Reddit** (vía pullpush.io; existe r/PaperClip_AI): el tema dominante, con diferencia, es el **consumo de tokens**:
+- r/openclaw, "Spent more on Paperclip heartbeats than on rent" (abr): "el heartbeat dispara cada pocos segundos y se come tus tokens"; un comentarista vio que el 50 % de su uso era Paperclip. Otro responde que el default es 30 min y que corre la plantilla *Agency Agents* (160+ agentes) con todos los heartbeats apagados salvo CEO y liderazgo, usando ~40 % de su suscripción ChatGPT Pro en 4 días. https://www.reddit.com/r/openclaw/comments/1seolaj/
+- r/PaperClip_AI, "How do I minimize token use?" (abr): 2–5 millones de tokens por issue con 4 agentes; "dos semanas instalando y aún no está bien"; un usuario que revisó el código: "arquitectónicamente está lejos de ser eficiente… la UX es de primera, por dentro es cinta adhesiva". https://www.reddit.com/r/PaperClip_AI/comments/1st5wid/
+- r/openclaw, "Has anyone used paperclip to connect their openclaws" (jul): "extremadamente ineficiente en tokens", "quemó tokens y no estaba seguro de que hiciera algo", "las actualizaciones rompían cosas"; a favor, un usuario que coordina 8 repos con 2 agentes como lead y revisor y él como board, tick cada 15 min y 1 run concurrente. https://www.reddit.com/r/openclaw/comments/1v57r2n/
+- r/AI_Agents, "From $5.86 to $1.21 a day" (6 oct): diario de costos de 6 agentes en Claude; pasar de timers a **wake on demand** bajó el gasto diario un 79 % en dos pasos (−57 % con menos despertares, −52 % más al eliminar los timers), porque cada despertar recarga todo el contexto aunque no haya trabajo. https://www.reddit.com/r/AI_Agents/comments/1wz0jqb/
+- r/PaperClip_AI, "how do you prevent agents from getting stuck in endless reviews" (28 sep): loops de revisión entre agentes; respuestas: el tope de rondas por defecto y una rutina que los "desatasca". https://www.reddit.com/r/PaperClip_AI/comments/1ws7f1s/
+- r/ClaudeCode, "Work = Managing a bunch of agents" (may): un usuario con bloqueos de aprobación diseñados en cada agente; otro: "es una caja negra, no queda claro cuándo un issue necesita a un humano". https://www.reddit.com/r/ClaudeCode/comments/1tdp8xh/
+- r/indiehackers, "Running a complete AI agent team. Is it real or not?" (abr, 64 comentarios): consenso: funciona para flujos repetibles y acotados, el costo con Opus se dispara con 3+ agentes y reintentos, "la economía sólo cierra si eres honesto sobre qué reemplazan". https://www.reddit.com/r/indiehackers/comments/1sk46gr/
+- Otros: r/OpenaiCodex "quema 7× menos tokens que Paperclip" (competidor WUPHF, abr); r/UnaAI "glitchy, temprano, la estrategia venía llena de estadísticas alucinadas" (may); r/hermesagent compara Paperclip con el kanban nativo de Hermes (sep); r/developersPak "lo probé hoy y me gustó, ¿alguien lo usa?" (25 sep); varios posts de *Papercliped*, un MCP comunitario para operar Paperclip desde Claude/ChatGPT (9–10 oct), una semana antes de que el 1012.0 trajera lo mismo de forma oficial.
+
+Lectura: Reddit confirma con datos lo que los issues ya decían: el producto castiga a quien deja timers encendidos y premia a quien lo usa event-driven con pocos agentes. Ninguna de las quejas de tokens viene de alguien con `maxConcurrentRuns: 1`, ICs on-demand y presupuestos duros.
 
 ## Datos de uso real
 
