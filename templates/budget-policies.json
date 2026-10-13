@@ -1,0 +1,8 @@
+{
+  "_comment": "Ejemplos para POST /api/companies/$COMPANY_ID/budgets/policies. Montos en centavos USD.",
+  "company": { "scope": "company", "amountCents": 30000, "warnPercent": 80, "hardStopEnabled": true, "notifyEnabled": true, "windowKind": "calendar_month_utc", "metric": "billed_cents" },
+  "ceo":     { "scope": "agent", "amountCents": 5000,  "warnPercent": 80, "hardStopEnabled": true },
+  "cto":     { "scope": "agent", "amountCents": 4000,  "warnPercent": 80, "hardStopEnabled": true },
+  "coder":   { "scope": "agent", "amountCents": 2500,  "warnPercent": 80, "hardStopEnabled": true },
+  "qa":      { "scope": "agent", "amountCents": 1500,  "warnPercent": 80, "hardStopEnabled": true }
+}

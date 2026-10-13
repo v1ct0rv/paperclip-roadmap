@@ -1,0 +1,32 @@
+{
+  "_comment": "Config recomendada para agentes coder con claude_local/codex_local. Fuente: docs oficiales + issues #6955/#7641/#11276.",
+  "runtimeConfig": {
+    "heartbeat": { "enabled": false, "intervalSec": 3600, "cooldownSec": 10, "wakeOnDemand": true, "wakeOnAssignment": true, "maxConcurrentRuns": 1 }
+  },
+  "adapterConfig_claude_local": {
+    "engine": "auto",
+    "model": "claude-sonnet-5",
+    "maxTurnsPerRun": 200,
+    "timeoutSec": 1800,
+    "graceSec": 15,
+    "dangerouslySkipPermissions": true,
+    "env": {
+      "ANTHROPIC_API_KEY": { "type": "secret_ref", "secretId": "<SECRET_ID>", "version": "latest" },
+      "GH_TOKEN":      { "type": "secret_ref", "secretId": "<GH_SECRET_ID>", "version": "latest" },
+      "GITHUB_TOKEN":  { "type": "secret_ref", "secretId": "<GH_SECRET_ID>", "version": "latest" }
+    }
+  },
+  "adapterConfig_codex_local": {
+    "engine": "auto",
+    "model": "gpt-5.6-sol",
+    "modelReasoningEffort": "medium",
+    "timeoutSec": 1800,
+    "graceSec": 15,
+    "outputInactivityTimeoutMs": 420000,
+    "env": {
+      "GH_TOKEN":     { "type": "secret_ref", "secretId": "<GH_SECRET_ID>", "version": "latest" },
+      "GITHUB_TOKEN": { "type": "secret_ref", "secretId": "<GH_SECRET_ID>", "version": "latest" }
+    }
+  },
+  "_manager_note": "Para CTO/CEO: heartbeat.enabled=true sólo vía rutina cron en horario laboral (p.ej. 0 8-18 * * 1-5), maxConcurrentRuns 1, modelo grande."
+}

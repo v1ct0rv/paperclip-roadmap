@@ -1,0 +1,67 @@
+# Paperclip en VPS con Postgres externo (misma máquina) + Caddy como reverse proxy con TLS automático.
+# Fuente de referencia: https://docs.paperclip.ing/how-to/deploy-to-vps-or-fly/ y /reference/deploy/docker/
+# Construir la imagen antes: git clone https://github.com/paperclipai/paperclip.git && cd paperclip &&
+#   docker build --target production -t paperclip-local .   # ¡--target production es obligatorio!
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: paperclip
+      POSTGRES_USER: paperclip
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paperclip"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  paperclip:
+    image: paperclip-local
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      HOST: 0.0.0.0
+      PORT: "3100"
+      PAPERCLIP_HOME: /paperclip
+      PAPERCLIP_DEPLOYMENT_MODE: authenticated
+      PAPERCLIP_DEPLOYMENT_EXPOSURE: public
+      PAPERCLIP_PUBLIC_URL: https://${PAPERCLIP_DOMAIN}
+      PAPERCLIP_AUTH_PUBLIC_BASE_URL: https://${PAPERCLIP_DOMAIN}
+      PAPERCLIP_ALLOWED_HOSTNAMES: ${PAPERCLIP_DOMAIN}
+      TRUST_PROXY: "1"
+      DATABASE_URL: postgres://paperclip:${POSTGRES_PASSWORD}@db:5432/paperclip
+      PAPERCLIP_AGENT_JWT_SECRET: ${PAPERCLIP_AGENT_JWT_SECRET}   # openssl rand -hex 32
+      PAPERCLIP_TOOL_ACTION_SIGNING_SECRET: ${PAPERCLIP_TOOL_ACTION_SIGNING_SECRET}
+      PAPERCLIP_TELEMETRY_DISABLED: "1"
+      # Credenciales de proveedores: mejor como "Connections"/secrets dentro de Paperclip,
+      # pero pueden ir aquí para el arranque inicial:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    volumes:
+      - /opt/paperclip:/paperclip          # uploads, secrets/master.key, workspaces
+      - /opt/paperclip-repos:/repos        # checkouts de tus repos (workspaces de proyectos)
+    expose:
+      - "3100"
+
+  caddy:
+    image: caddy:2
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - paperclip
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

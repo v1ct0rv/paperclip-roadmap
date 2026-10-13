@@ -1,0 +1,12 @@
+{
+  "_comment": "Política de ejecución por issue: revisión por agente QA y aprobación final por humano (CTO). Fuente: https://docs.paperclip.ing/guides/power/execution-policy/",
+  "executionPolicy": {
+    "mode": "normal",
+    "commentRequired": true,
+    "maxReviewRounds": 3,
+    "stages": [
+      { "type": "review",   "participants": [ { "type": "agent", "agentId": "<QA_AGENT_ID>" } ] },
+      { "type": "approval", "approvalsNeeded": 1, "participants": [ { "type": "user", "userId": "<CTO_HUMANO_USER_ID>" } ] }
+    ]
+  }
+}

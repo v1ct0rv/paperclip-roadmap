@@ -1,0 +1,9 @@
+# Reemplaza el dominio. Caddy obtiene TLS de Let's Encrypt automáticamente.
+paperclip.tudominio.com {
+    reverse_proxy paperclip:3100 {
+        transport http {
+            read_timeout 3600s
+        }
+    }
+    encode gzip
+}
