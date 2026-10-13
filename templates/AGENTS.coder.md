@@ -21,6 +21,9 @@ aceptación. Tu entregable es SIEMPRE un pull request pequeño, verificado y des
 4. Prohibido: `--no-verify`, `git push --force` a ramas compartidas, `gh pr merge --admin`, merges de cualquier tipo.
 5. Si no puedes pasar CI o falta información: marca el issue `blocked`, nombra el check que falla o la
    pregunta concreta, y termina el heartbeat. No inventes.
+6. Conflictos de merge: no los resuelvas a ciegas. Marca `blocked` nombrando los archivos en conflicto.
+7. Si necesitas datos reales y no existen, escribe `[TBD: awaiting real data]`. Nunca inventes métricas,
+   resultados de tests ni estados.
 
 ## Límites de tamaño
 - PR ≤ 400 líneas netas. Si el issue es más grande, propón la partición en el comentario y crea sub-issues

@@ -37,7 +37,7 @@ node -v                      # >= 24.11
 claude --version && codex --version && gh auth status
 
 # Opción A (5 minutos, todo por defecto, Postgres embebido en ~/.paperclip):
-npx paperclipai onboard --yes
+npx paperclipai@latest onboard --yes
 # → http://localhost:3100
 
 # Opción B: prueba aislada y desechable con CEO pre-cargado
@@ -51,7 +51,8 @@ Gotchas documentados: no correr como root (Postgres embebido lo rechaza); en App
 1. Wizard → nombre de la organización → Continue.
 2. **Goals** → una meta con métrica y plazo, p. ej. *"Cerrar 20 issues del backlog de `repo-piloto` con PRs aprobados antes del 31 de octubre"*.
 3. **Agents → New Agent**: nombre (el primero es CEO automáticamente), adapter `claude_local`, working directory absoluto (`~/paperclip-workspace`), modelo grande para el CEO, heartbeat **1 vez por hora** (empieza apagado; enciéndelo tú), budget US$30–50/mes.
-4. Ejecuta "Run Heartbeat" manualmente. El CEO propone una estrategia → **apruébala o pide revisión**. Lee el transcript completo: así aprendes qué contexto le falta.
+4. Ejecuta "Run Heartbeat" manualmente. El CEO propone una estrategia → **apruébala o pide revisión**. Lee el transcript completo: así aprendes qué contexto le falta. Desde 2026.1012.0 las instrucciones por defecto del CEO son 20 palabras: escribe las tuyas (o importa una plantilla) **antes** del primer heartbeat.
+5. **Mantén todo pausado mientras construyes la org.** Activa agentes de uno en uno y sin timers; un espectador del video de NetworkChuck quemó 3M tokens con 15–25 sesiones concurrentes durante el onboarding (discusión #13999).
 
 ### 1.3 Instalar un equipo del catálogo o una empresa-plantilla
 
@@ -96,7 +97,8 @@ Plantillas recomendadas para software: **gstack** (5 agentes, pipeline plan → 
 
 ### 2.1 Máquina
 
-- VPS 4 vCPU / 8 GB RAM / 80 GB SSD (Hetzner CPX31, DigitalOcean, Vultr ≈ US$20–40/mes). Los docs oficiales estiman US$5–35/mes en total de infraestructura.
+- VPS 4 vCPU / 8 GB RAM / 80 GB SSD (Hetzner CPX31, DigitalOcean, Vultr ≈ US$20–40/mes). Los docs oficiales estiman US$5–35/mes en total de infraestructura. Tabla de la comunidad (Contabo): 2 vCPU/4 GB ≈ 4–6 agentes, 4/8 ≈ 8–12, 8/16 ≈ 20, 16/32 ≈ 40+.
+- **Proxmox propio**: usa una **VM** (no LXC) con Ubuntu Server 24.04 LTS o Debian 13, 4 vCPU tipo *host*, 12–16 GB RAM, 80–120 GB en SSD, `qemu-guest-agent`, Tailscale dentro de la VM y snapshot antes de cada upgrade. Razones: los agentes lanzan procesos con shell, Docker en LXC exige privilegios/nesting, el Postgres embebido rechaza root (usuario por defecto en LXC) y los RCE de 2026 justifican aislar Paperclip en su propia VM. Referencia declarativa (Terraform + Ansible + Tailscale): https://github.com/luisbrancher/homelab-paperclip-agents
 - Ubuntu 24.04, Docker + Compose, `gh` CLI, dominio apuntando (`paperclip.tudominio.com`).
 - **No abras el puerto 3100**; sólo 80/443 vía Caddy/Nginx.
 
@@ -115,7 +117,9 @@ Variables críticas: `PAPERCLIP_DEPLOYMENT_MODE=authenticated`, `PAPERCLIP_DEPLO
 
 ### 2.3 Endurecimiento mínimo
 
-> Contexto: en 2026 Paperclip acumuló 12 advisories de seguridad, incluidos **CVE-2026-41679** (RCE sin autenticación, CVSS 10.0, con módulo de Metasploit) y **CVE-2026-77087** (RCE drive-by por DNS rebinding contra instalaciones locales por defecto, CVSS 9.6, julio). Corregidos desde v2026.416.0. Instala **siempre** ≥ 2026.916.1 y nunca expongas la UI sin autenticación.
+> Contexto: en 2026 Paperclip acumuló 12 advisories de seguridad, incluidos **CVE-2026-41679** (RCE sin autenticación, CVSS 10.0, con módulo de Metasploit) y **CVE-2026-77087** (RCE drive-by por DNS rebinding contra instalaciones locales por defecto, CVSS 9.6, julio). Corregidos desde v2026.416.0; sin advisories nuevos entre septiembre y el 12 de octubre. Instala **siempre** ≥ 2026.1012.0 y nunca expongas la UI sin autenticación.
+>
+> Desde 2026.1001.0 los harnesses corren en **full auto por defecto** (Claude Code con `--dangerously-skip-permissions`, OpenCode `allow`, Codex `engine: cli` sin sandbox). Para agentes que leen input no confiable fija explícitamente `dangerouslySkipPermissions: false` (Claude) o deja Codex en `engine: auto` (ACP, sandbox de workspace) y usa el preset `low_trust_review` + sandbox.
 
 - Respalda `PAPERCLIP_HOME/instances/default/secrets/master.key` fuera del servidor: **sin esa llave pierdes todos los secretos**.
 - Backups: `paperclipai db:backup --dir /backups --retention-days 14` en cron + export nocturno de la empresa (`paperclipai company export`, rutina `0 2 * * *`).
@@ -129,7 +133,7 @@ Variables críticas: `PAPERCLIP_DEPLOYMENT_MODE=authenticated`, `PAPERCLIP_DEPLO
 ### 2.4 Credenciales de modelos
 
 - **Connections** (UI) → agrega suscripción Claude Max y/o Codex (login de dispositivo) y API keys de respaldo.
-- Regla práctica: suscripciones para coders de alto volumen; API key con budget duro para el CEO/CTO (menos volumen, más costoso por token).
+- Regla práctica: suscripciones para coders de alto volumen; API key con budget duro para el CEO/CTO (menos volumen, más costoso por token). **Siempre** una API key de respaldo: las conexiones por suscripción de Anthropic expiran a las ~8 h (issues #14182/#13725/#13805 abiertas al 12 oct). Desde el 7 de octubre los planes Max/Team incluyen créditos mensuales de API, lo que abarata ese respaldo.
 
 **Done**: 2+ personas del equipo entran con login, un heartbeat corre en el servidor, backup restaurado en prueba una vez.
 
@@ -155,7 +159,7 @@ Amplía sólo donde la fase 3 mostró un cuello de botella ("Start small, add ag
 
 | Rol | Adapter sugerido | Modelo | Heartbeat | Skills |
 |---|---|---|---|---|
-| CEO (opcional) | claude_local | Opus / Fable | 1×/día (rutina 07:00) | task-planning, status-card-query |
+| CEO / chief of staff (opcional) | claude_local | Haiku si sólo enruta; Opus si planifica | 1×/día (rutina 07:00) o sólo on-demand | task-planning, status-card-query |
 | CTO / EM | claude_local | Opus | 1–2 h laboral | task-planning, issue-triage |
 | Backend coder | codex_local | gpt-5.x | on-demand | github-pr-workflow |
 | Frontend coder | claude_local | Sonnet | on-demand | github-pr-workflow, wireframe |
@@ -174,9 +178,10 @@ Amplía sólo donde la fase 3 mostró un cuello de botella ("Start small, add ag
 
 ## Fase 5 · Integraciones GitHub + Jira + Slack (1 semana)
 
-- **GitHub**: pasa de PAT a **GitHub App** (tokens de instalación cortos por heartbeat) o conexión gestionada (webhooks de `pull_request` mueven issues a `done` automáticamente). Protege `main`; los agentes tienen prohibido merge.
-- **Jira** (conector MCP de Atlassian Cloud): los agentes leen/comentan/transicionan. Patrón realista hoy: **Jira es la fuente de verdad del negocio**; una rutina "importadora" (agente CTO) lee el sprint activo y crea issues espejo en Paperclip con el link a la clave Jira; al pasar a `done`, el agente comenta y transiciona en Jira ("Ask first" para escrituras hasta que confíes). El sync bidireccional nativo está en el roadmap, no lo esperes.
-- **Slack**: (0) opción rápida: plugin comunitario `mvanhorn/paperclip-plugin-slack` (notificaciones, botones Approve/Reject, alertas de presupuesto 80/90/100 %, digest diario, comandos `/clip`); revísalo antes de instalarlo, es código de terceros con acceso a tu instancia. (a) notificador nativo = rutina cada minuto (`concurrencyPolicy: skip_if_active`) + agente barato que consulta `/approvals?status=pending`, `/issues?status=blocked&priority=critical,high` y `/dashboard`, y publica Block Kit a un webhook guardado como secret. (b) Canal de chat experimental: menciones a `@paperclip` en `#dev` se vuelven tareas (requiere HTTPS público). El tool MCP de Slack para agentes está "no completamente funcional" en 2026.916 → no dependas de él.
+- **GitHub**: pasa de PAT a **GitHub App** (tokens de instalación cortos por heartbeat) o conexión gestionada (sólo con enrolamiento en Paperclip Cloud; webhooks de `pull_request` mueven issues a `done`). Protege `main`; los agentes tienen prohibido merge. Recuerda que los controles "Ask first" del conector **no limitan `git`/`gh` en shell**.
+- **GitHub Code Review Bot** (experimental, Chat connectors + HTTPS público): asigna un agente revisor de baja confianza en sandbox, crea la GitHub App desde el manifest (Contents: read, Pull requests: write, Checks: write), elige triggers (menciones y/o PRs nuevos/actualizados, filtros por autor/rama/label) y umbral (default 5/5). Exige el check **Paperclip Review** en un ruleset con umbral numérico (el modo report-only produce *neutral*, que GitHub puede aceptar como aprobado). Es una segunda opinión, no reemplaza al revisor humano.
+- **Jira** (conector MCP de Atlassian Cloud; para Linear el conector MCP ya no requiere app OAuth propia): los agentes leen/comentan/transicionan. Patrón realista hoy: **Jira es la fuente de verdad del negocio**; una rutina "importadora" (agente CTO) lee el sprint activo y crea issues espejo en Paperclip con el link a la clave Jira; al pasar a `done`, el agente comenta y transiciona en Jira ("Ask first" para escrituras hasta que confíes). El sync bidireccional nativo está en el roadmap, no lo esperes.
+- **Slack** (reconstruido en 2026.1001.0/1005.0): (a) **Canal de chat nativo**: activa el flag experimental *Chat connectors*, necesita HTTPS público (no socket mode, Tailscale Serve no basta), sigue el wizard de 7 pasos (agente permanente → crear app desde el manifest generado → Bot token `xoxb-` + Signing Secret → verificar → avatar → `/tubot connect` para vincular tu cuenta → prueba `@tubot you there?`). Una mención en un hilo = una tarea; las respuestas del board en la tarea se publican en el hilo; sólo miembros vinculados pueden ordenar trabajo (*Allow unlinked people* apagado). Los agentes obtienen herramientas de Slack en tareas y rutinas, con acciones sensibles (crear canales, invitar, borrar) siempre bajo aprobación. (b) **Notificador para aprobaciones/bloqueos**: rutina cada minuto (`concurrencyPolicy: skip_if_active`) + agente barato que consulta `/approvals?status=pending`, `/issues?status=blocked&priority=critical,high` y `/dashboard` y publica al canal con sus herramientas de Slack o a un webhook guardado como secret. (c) Alternativa comunitaria: plugin `mvanhorn/paperclip-plugin-slack` (botones Approve/Reject, alertas 80/90/100 %, digest, `/clip`); es código de terceros con acceso a tu instancia, revísalo. La página oficial sigue marcando Slack como "no completamente funcional": prueba en staging una semana antes de depender de él.
 - **Sentry/PostHog** (opcional): webhook → rutina → issue para el SRE agent.
 
 **Done**: aprobaciones y bloqueos llegan a Slack en < 2 min; cada issue de Paperclip tiene su clave Jira; nadie entra a Paperclip para saber "qué pasa".
@@ -188,9 +193,11 @@ Amplía sólo donde la fase 3 mostró un cuello de botella ("Start small, add ag
 - **Ritual semanal (30 min)**: Costs → Providers (qué modelo gasta), rondas de revisión, PRs rechazados, issues `blocked`. Ajusta prompts/skills, no agentes.
 - **Multi-cliente / multi-equipo**: una **organización por cliente** (aislamiento real de datos, presupuesto y credenciales), mismo servidor. Export/import zip para clonar la plantilla de org.
 - **Runner separado**: cuando tengas "un puñado de agentes ocupados", mueve el runner a otro contenedor compartiendo `DATABASE_URL` + `PAPERCLIP_API_URL`.
-- **Actualizaciones**: fija versión (`:2026.916.1`), prueba `beta` en staging una semana antes; el proyecto rompe cosas entre releases (500 commits por release).
+- **Actualizaciones**: fija versión (`:2026.1012.0`), prueba `beta` en staging una semana antes; el proyecto rompe cosas entre releases (77–503 commits por release, tres releases en las últimas tres semanas). Con install gestionado usa `paperclipai update` (hace backup de DB automático, flip atómico, hot-restart y rollback automático si falla el health check; `--check`, `--dry-run`, `--rollback`). **Excepción 2026.1012.0**: cambió el protocolo de locks de workspaces a SQLite; hay que **drenar y parar todos los procesos viejos** (servidor y runners, en todos los hosts) antes de arrancar la nueva versión; el hot-restart normal no sirve para esta.
+- **Operar desde el terminal**: con *Assistant connections (MCP)* activado, cada dev añade Paperclip a su Claude Code/Codex (`claude mcp add --transport http paperclip https://<host>/mcp/paperclip`) y crea/consulta tareas, comenta y ve aprobaciones sin abrir la UI. Requiere `PAPERCLIP_PUBLIC_URL` HTTPS y rate limiting en el borde.
 - **Observabilidad**: `OTEL_EXPORTER_OTLP_ENDPOINT` a tu Grafana/Tempo, `SENTRY_DSN`.
 - **Kill switch**: pausar la empresa (pausa ignora todos los wakes) y `hardStopEnabled` en todos los presupuestos.
-- **Evolución del roadmap del producto a vigilar**: memoria/knowledge, work queues, bring-your-own-ticket-system (Jira/Linear sync), Paperclip Cloud, desktop app.
+- **Memoria entre heartbeats**: conectores de memoria experimentales (Mem0, Zep, Supermemory, Cognee, Honcho; flag `enableMemoryConnectors`). El agente guarda/recupera contexto llamando a las herramientas del proveedor; no hay sync automático. Pruébalo sólo cuando los agentes repitan errores entre tareas; las acciones de escritura/borrado arrancan como *Allowed*, bájalas a *Ask first*.
+- **Evolución del roadmap del producto a vigilar**: memoria/knowledge (🟡), agent chat (🟡), work queues, bring-your-own-ticket-system (Jira/Linear sync, ⚪ sin fecha), Paperclip Cloud (waitlist, sin precio), desktop app, Rich-ACP para Cursor/Copilot/Pi.
 
 **Done (el "100")**: cada sprint, ≥ 30–50 % de los issues S/M los cierran agentes con PRs fusionados por humanos, costo por PR estable y predecible, ningún incidente de seguridad, y el equipo humano dedica su tiempo a diseño, revisión y clientes.
