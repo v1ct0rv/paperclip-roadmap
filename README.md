@@ -2,6 +2,8 @@
 
 > Investigación y plan de adopción de [Paperclip](https://paperclip.ing) (repo: [paperclipai/paperclip](https://github.com/paperclipai/paperclip), sitio antiguo: paperclipai.net), elaborado el 28 de septiembre de 2026 a partir de documentación oficial, Context7, GitHub, blog oficial, comunidad (X, YouTube, HN, dev.to, podcasts) y un mapa de alternativas.
 
+**Versión resumida en una página (Artifact):** https://claude.ai/artifact/UU2gSBGNoX7p4BWbgik83t
+
 ## TL;DR
 
 - **Qué es**: un *control plane* open source (MIT) para equipos de agentes de IA. Organiza a los agentes que ya tienes (Claude Code, Codex, Cursor, Gemini CLI, OpenClaw…) en un organigrama con metas, tareas, heartbeats, presupuestos con parada automática y aprobaciones humanas. "Si OpenClaw es un empleado, Paperclip es la empresa."
