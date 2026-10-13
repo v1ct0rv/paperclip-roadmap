@@ -1,0 +1,264 @@
+<title>Paperclip Roadmap 0→100</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column (72ch) for prose, full-width "boards" for the roadmap stepper, scorecard and comparison tables. Ops-console vernacular: status chips, tabular numbers, mono for commands. */
+:root{
+  --bg:#f5f7fa; --surface:#ffffff; --fg:#182030; --muted:#5b6678; --line:#d9dfe8;
+  --accent:#1f5fae; --accent-ink:#ffffff; --warn:#b7791f; --bad:#b3362c; --good:#2f7d4f; --chip:#e9eef6;
+  --display:"IBM Plex Sans Condensed","Arial Narrow",sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0f141c;--surface:#171e29;--fg:#e6ebf2;--muted:#9aa6b8;--line:#2a3442;--accent:#6ea3ec;--accent-ink:#0f141c;--warn:#e0a94a;--bad:#e56d62;--good:#63b87f;--chip:#222c3a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f141c;--surface:#171e29;--fg:#e6ebf2;--muted:#9aa6b8;--line:#2a3442;--accent:#6ea3ec;--accent-ink:#0f141c;--warn:#e0a94a;--bad:#e56d62;--good:#63b87f;--chip:#222c3a;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;margin:0;padding-block:0 64px}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:20px}
+header.top{border-bottom:1px solid var(--line);padding-block:36px 28px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-size:clamp(34px,5vw,52px);line-height:1.05;margin:8px 0 12px;text-wrap:balance}
+h2{font-family:var(--display);font-size:28px;margin:48px 0 14px;text-wrap:balance}
+h3{font-size:17px;margin:20px 0 8px}
+p{max-width:72ch}
+.lede{font-size:18px;color:var(--fg);max-width:72ch}
+.verdict{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:22px}
+.tile{background:var(--surface);border:1px solid var(--line);padding:14px 16px;min-width:0}
+.tile .k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tile .v{font-family:var(--display);font-size:26px;line-height:1.1;margin-top:4px;font-variant-numeric:tabular-nums}
+.tile .s{font-size:13px;color:var(--muted);margin-top:4px}
+.chip{display:inline-block;font-family:var(--mono);font-size:12px;padding:2px 8px;border-radius:3px;background:var(--chip);color:var(--fg);white-space:nowrap}
+.chip.good{background:color-mix(in srgb,var(--good) 18%,var(--surface));color:var(--good)}
+.chip.warn{background:color-mix(in srgb,var(--warn) 20%,var(--surface));color:var(--warn)}
+.chip.bad{background:color-mix(in srgb,var(--bad) 18%,var(--surface));color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.stars{font-family:var(--mono);letter-spacing:.05em;white-space:nowrap}
+.stars b{color:var(--accent)} .stars span{color:var(--line)}
+.phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:16px}
+.phase{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--accent);padding:14px 16px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.phase .n{font-family:var(--mono);font-size:12px;color:var(--accent)}
+.phase h3{margin:0;font-family:var(--display);font-size:21px}
+.phase .t{font-size:13px;color:var(--muted)}
+.phase ul{margin:0;padding-left:18px;font-size:14px}
+.phase .done{font-size:13px;border-top:1px dashed var(--line);padding-top:8px;margin-top:auto}
+.phase .done b{color:var(--good)}
+code{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px 5px;border-radius:3px}
+pre{font-family:var(--mono);font-size:13px;background:var(--surface);border:1px solid var(--line);padding:12px 14px;overflow-x:auto;line-height:1.5;margin:10px 0}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);padding:16px;min-width:0}
+.card h3{margin-top:0;font-family:var(--display);font-size:22px}
+.card dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.card dt{color:var(--muted)} .card dd{margin:0}
+.org{font-family:var(--mono);font-size:12.5px;white-space:pre;overflow-x:auto;background:var(--bg);padding:10px;border:1px solid var(--line);margin:10px 0}
+ol.rules{padding-left:22px;max-width:80ch} ol.rules li{margin:6px 0}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.case{background:var(--surface);border:1px solid var(--line);padding:14px 16px;min-width:0;font-size:14px}
+.case h3{margin:0 0 6px;font-size:16px}
+.case .m{color:var(--muted);font-size:13px}
+.update{border-left:3px solid var(--warn);background:var(--surface);padding:12px 16px;margin-top:18px;font-size:14px}
+a{color:var(--accent)}
+.src{font-size:13px;columns:2;column-gap:28px;max-width:none}
+.src li{break-inside:avoid;margin:3px 0}
+@media (max-width:640px){.src{columns:1}}
+footer{margin-top:56px;border-top:1px solid var(--line);padding-top:16px;font-size:13px;color:var(--muted)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.phase{transition:border-color .2s}}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Investigación · 28 sep 2026 · revisada el 12 oct 2026 · paperclipai/paperclip v2026.1012.0</div>
+  <h1>Paperclip para equipos de desarrollo: roadmap de 0 a 100</h1>
+  <p class="lede">Paperclip es un <em>control plane</em> open source (MIT) que organiza los agentes que ya usas (Claude Code, Codex, Cursor, Gemini CLI, OpenClaw) en un organigrama con metas, tareas, heartbeats, presupuestos con parada automática y aprobaciones humanas. Esta página resume la investigación completa que vive en el repo <a href="https://github.com/v1ct0rv/paperclip-roadmap">paperclip-roadmap</a> (9 documentos + plantillas).</p>
+  <div class="verdict">
+    <div class="tile"><div class="k">Veredicto</div><div class="v">Piloto sí, apuesta única no</div><div class="s">Capa de gobierno sobre Claude Code + Codex, aislada y con tope de gasto. Reevaluar en marzo 2027.</div></div>
+    <div class="tile"><div class="k">Scorecard</div><div class="v">3.3 / 5</div><div class="s">Gobierno ★5 · Integración runtimes ★5 · Madurez ★2 · Seguridad ★2 · Sostenibilidad ★2</div></div>
+    <div class="tile"><div class="k">Tracción</div><div class="v">101k ★</div><div class="s">7 meses · ~120k descargas/mes · 3 releases en 3 semanas · ~3k issues abiertas (797 abiertas vs 95 cerradas en 30 días)</div></div>
+    <div class="tile"><div class="k">Tiempo al "100"</div><div class="v">6–8 semanas</div><div class="s">Hasta que agentes cierren ≥30 % de issues S/M con PRs fusionados por humanos</div></div>
+  </div>
+</header>
+
+<h2>Qué cambió del 20 de septiembre al 12 de octubre</h2>
+<div class="tablewrap"><table>
+<tr><th>Fecha</th><th>Hecho</th><th>Por qué importa</th></tr>
+<tr><td class="num">1 oct</td><td>v2026.1001.0</td><td>Harnesses en <b>full auto por defecto</b>; Slack reconstruido; setup guiado de review bot; Railway; agregadores MCP</td></tr>
+<tr><td class="num">5 oct</td><td>v2026.1005.0</td><td>Una mención <code>@</code> ya no inicia un run; Slack bidireccional; GitHub Code Review Bot; Browser Use Cloud; memoria experimental; skills desde repos GitHub; fix de crash-loop</td></tr>
+<tr><td class="num">7–12 oct</td><td>Blog oficial: control plane vs runtime, stacks self-hosted, <i>Running AI Agents Overnight</i></td><td>Paperclip admite que no bloquea el shell del runtime; modelo de tres carriles; "el presupuesto para el siguiente run, no la llamada actual"</td></tr>
+<tr><td class="num">12 oct</td><td>v2026.1012.0 · 100k ★</td><td><b>Assistant Connection (MCP)</b>: Claude Code/Codex operan Paperclip como usuario; Sonnet 5.5 y GPT-6.1 Sol; runs silenciosos marcados a 5/15 min; CEO por defecto de 20 palabras; locks nuevos (drenar procesos antes de subir)</td></tr>
+<tr><td class="num">24 sep → 12 oct</td><td>NetworkChuck (1.34M vistas), 3.9M vistas acumuladas en YouTube</td><td>Explosión de adopción y de incidentes de gasto (discusión #13999: 3M tokens en el onboarding)</td></tr>
+<tr><td class="num">2 oct</td><td>Paperclip.inc cerró</td><td>Era el único hosting gestionado; Paperclip Cloud sigue en waitlist sin precio</td></tr>
+</table></div>
+<div class="update">Sin cambios: Jira/Linear sin sync bidireccional, workspaces aislados aún experimentales, sin Ollama, sin advisories de seguridad nuevos desde julio. Issues calientes abiertas: suscripciones Anthropic que expiran a las ~8 h (#14182), fallo ACP de Claude Code (#14093), agentes sin run token actuando como board en modo local (#15027).</div>
+
+<h2>Qué es y qué no es</h2>
+<div class="cols">
+  <div class="card"><h3>Los 7 conceptos</h3>
+    <dl><dt>Company</dt><dd>org aislada con meta, agentes, tablero y presupuesto</dd>
+    <dt>Agente</dt><dd>rol + un solo jefe + budget mensual + adapter (runtime real)</dd>
+    <dt>CEO</dt><dd>primer agente; propone estrategia, tú apruebas (default: 20 palabras, escribe el tuyo)</dd>
+    <dt>Goals</dt><dd>Misión → meta de proyecto → meta de agente → tarea</dd>
+    <dt>Issues</dt><dd><code>backlog→todo→in_progress→in_review→done</code>, checkout atómico</dd>
+    <dt>Heartbeat</dt><dd>ventana de ejecución: timer, asignación, comentario, aprobación, rutina (la mención <code>@</code> ya no despierta)</dd>
+    <dt>Budgets</dt><dd>aviso 80 %, pausa 100 %, por empresa/agente/proyecto; actúa entre runs</dd></dl></div>
+  <div class="card"><h3>Qué NO es (según sus docs)</h3>
+    <ul style="margin:0;padding-left:18px;font-size:14px">
+      <li>No es un chatbot ni una herramienta de un solo agente ("si tienes un agente, no necesitas Paperclip").</li>
+      <li>No es code review: "trae tu propio proceso". Los agentes nunca hacen merge.</li>
+      <li>No corre modelos: <em>bring your own agent</em>, tú pagas a Anthropic/OpenAI.</li>
+      <li>No bloquea el shell ni los archivos del runtime; desde 1001.0 corre en full auto por defecto. Restringe explícitamente a los agentes expuestos a input hostil.</li>
+      <li>No sincroniza Jira/Linear bidireccionalmente (roadmap). Hoy Jira es acceso MCP para leer/comentar/transicionar.</li>
+      <li>Slack: reconstruido en octubre (chat bidireccional, herramientas para agentes), pero sigue experimental y marcado "no completamente funcional".</li>
+    </ul></div>
+</div>
+
+<h2>Roadmap en 7 fases</h2>
+<p>Las fases 0–2 son comunes a los tres escenarios. Cada fase tiene un criterio de salida medible. Comandos completos en <code>docs/03-roadmap-0-a-100.md</code>.</p>
+<div class="phases">
+  <div class="phase"><div class="n">FASE 0 · 2–3 días</div><h3>Decidir</h3><div class="t">Repo piloto de bajo riesgo, 10 issues "agent-ready", cuentas y presupuesto</div>
+    <ul><li>CI + branch protection + AGENTS.md en el repo piloto</li><li>Inventario: Claude Max/Codex + API keys de respaldo</li><li>Tope del experimento: US$100–300 el primer mes</li></ul>
+    <div class="done"><b>Done:</b> doc de una página con repo, issues, presupuesto y responsable humano</div></div>
+  <div class="phase"><div class="n">FASE 1 · 1 semana</div><h3>Laboratorio</h3><div class="t"><code>npx paperclipai test-drive</code> → org → CEO → plantilla → repo</div>
+    <ul><li>Importar <code>gstack</code> o <code>superpowers</code> desde paperclipai/companies; escribir el AGENTS.md del CEO (el default son 20 palabras)</li><li>Org construida con todo pausado; activar de uno en uno, sin timers</li><li>Workspaces aislados (flag experimental) + <code>maxConcurrentRuns: 1</code></li><li>PAT fine-grained como secret, skill github-pr-workflow</li></ul>
+    <div class="done"><b>Done:</b> 3 PRs fusionados por ti, costo por PR conocido</div></div>
+  <div class="phase"><div class="n">FASE 2 · 2–4 días</div><h3>VPS + Docker</h3><div class="t">4 vCPU / 8 GB, Postgres 17 externo, Caddy TLS, modo authenticated</div>
+    <ul><li>En Proxmox: VM Ubuntu 24.04 (no LXC), 4 vCPU, 12–16 GB</li><li><code>docker build --target production</code> (obligatorio); versión ≥ 2026.1012.0</li><li>Backups + <code>master.key</code> fuera del servidor; strict mode; API key de respaldo para suscripciones</li></ul>
+    <div class="done"><b>Done:</b> 2+ personas con login, heartbeat en servidor, backup restaurado</div></div>
+  <div class="phase"><div class="n">FASE 3 · 1 semana</div><h3>Primer repo real</h3><div class="t">CTO + Coder + QA; review agente + aprobación humana en cada issue</div>
+    <ul><li>Coders sin timer (on-demand); CTO 1–2 h en horario laboral</li><li>Budgets: company 300 · CTO 40 · coder 25 · QA 15 USD</li><li>Métricas diarias: PRs, rondas, costo/PR, minutos humanos</li></ul>
+    <div class="done"><b>Done:</b> ≥10 PRs fusionados, rechazo &lt;30 %, post-mortem escrito</div></div>
+  <div class="phase"><div class="n">FASE 4 · 1–2 semanas</div><h3>Equipo completo</h3><div class="t">Añadir roles sólo donde hubo cuello de botella</div>
+    <ul><li>Backend (Codex), Frontend (Claude), QA, Reviewer de otra familia, Docs/Release (mini)</li><li>Rutinas: triage diario, daily brief 07:00, sync semanal</li><li>Skills propias del stack; watchdogs en épicas</li></ul>
+    <div class="done"><b>Done:</b> un sprint de issues S/M cerrado sólo con revisión y aprobaciones</div></div>
+  <div class="phase"><div class="n">FASE 5 · 1 semana</div><h3>GitHub + Jira + Slack</h3><div class="t">GitHub App, agente-espejo de Jira, Slack nativo + notificador</div>
+    <ul><li>GitHub App; Code Review Bot como check "Paperclip Review" con umbral numérico</li><li>Jira: rutina lee sprint activo, crea issues espejo; escrituras "ask first"</li><li>Slack nativo (Chat connectors + HTTPS público, wizard de 7 pasos) + notificador de aprobaciones/bloqueos</li></ul>
+    <div class="done"><b>Done:</b> aprobaciones y bloqueos en Slack en &lt;2 min; cada issue con clave Jira</div></div>
+  <div class="phase"><div class="n">FASE 6 · continuo</div><h3>Operación y escala</h3><div class="t">Ritual semanal de costos, una org por cliente, runner separado</div>
+    <ul><li><code>paperclipai update</code> con backup automático; 1012.0 exige drenar procesos</li><li>Assistant Connection: cada dev opera Paperclip desde Claude Code</li><li>OTel/Sentry; kill switch = pausar empresa + hard stops; memoria experimental sólo si hace falta</li></ul>
+    <div class="done"><b>Done (el 100):</b> ≥30–50 % de issues S/M cerrados por agentes cada sprint, costo/PR estable, cero incidentes</div></div>
+</div>
+
+<h2>Tres escenarios</h2>
+<div class="cols">
+  <div class="card"><h3>A · Empresa 5–20 devs</h3>
+    <div class="org">Board: Tech Lead humano
+└── CTO agent (Claude Opus)
+    ├── Backend coder (Codex)      on-demand
+    ├── Frontend coder (Sonnet)    on-demand
+    ├── QA (Sonnet)                review stage
+    ├── Reviewer senior (Opus)     PRs M/L
+    └── Docs & Release (mini)      rutina semanal</div>
+    <dl><dt>Presupuesto</dt><dd>US$300–800/mes + suscripciones</dd><dt>Gobierno</dt><dd>review agente + approval humano en todo</dd><dt>Riesgo</dt><dd>PRs mediocres que consumen tiempo senior</dd><dt>Éxito 3 m</dt><dd>≥30 % de issues S/M por agentes; &lt;15 min revisión/PR</dd></dl></div>
+  <div class="card"><h3>B · Solo founder / 1–3</h3>
+    <div class="org">Board: tú
+└── CEO agent (Opus, 1×/día 07:00)
+    ├── Coder full-stack (Codex, suscripción)
+    ├── QA (Sonnet)                review stage
+    └── Growth (Sonnet, opcional)  3×/semana</div>
+    <dl><dt>Presupuesto</dt><dd>US$100–400/mes (Max cubre mucho)</dd><dt>Gobierno</dt><dd>approval humano en PRs L e infra</dd><dt>Riesgo</dt><dd>runaway spend; CEO hiperactivo</dd><dt>Éxito 3 m</dt><dd>producto pequeño con releases semanales</dd></dl></div>
+  <div class="card"><h3>C · Agencia multi-cliente</h3>
+    <div class="org">Instancia Paperclip (VPS)
+├── Org "Cliente A" → CTO-A, Coder-A, QA-A
+├── Org "Cliente B" → CTO-B, Coder-B, QA-B
+└── Org "Interna"   → propuestas, docs, tooling</div>
+    <dl><dt>Presupuesto</dt><dd>US$200–500 por cliente, facturable</dd><dt>Gobierno</dt><dd>una org por cliente; export/import como plantilla; sandbox si NDA</dd><dt>Riesgo</dt><dd>fuga de contexto entre clientes</dd><dt>Éxito 3 m</dt><dd>costo por PR fusionado y margen por cuenta</dd></dl></div>
+</div>
+
+<h2>Casos de uso reales</h2>
+<p>Evidencia de uso: 14,267 commits públicos atribuidos a Paperclip en 884 repos (estudio oficial, marzo 2026), pero la mediana es de 3 commits por repo. Perfil dominante: founders técnicos con TypeScript/Next.js. Entre septiembre y octubre no apareció ningún caso de equipo de software con PRs/día o costo por feature publicados.</p>
+<div class="cases">
+  <div class="case"><h3>1 · PR nocturno</h3>Issue → worktree → branch → commit → PR → QA agent → aprobación humana → merge. Flujo canónico documentado y usado por el propio equipo de Paperclip.<div class="m">Medir: PRs/día, % fusionados sin cambios, costo por PR</div></div>
+  <div class="case"><h3>2 · Deuda técnica y migraciones</h3>Una meta con métrica → CTO agent la parte en 45 sub-issues S → 2 coders en paralelo → watchdog en la épica. Skill de empresa con el mapeo "antes/después".<div class="m">Medir: sub-issues/día, regresiones en CI</div></div>
+  <div class="case"><h3>3 · QA agent como puerta</h3>Skill qa-acceptance, criterios Given/When/Then, screenshots. <code>maxReviewRounds: 3</code> escala al humano si no converge.<div class="m">Medir: bugs atrapados antes del review humano</div></div>
+  <div class="case"><h3>4 · Triage de bugs fuera de horario</h3>Rutina 22:00 lee Jira (MCP) filtrando <code>agent-ready</code>, reproduce, escribe el test que falla y abre PR con fix propuesto. Sentry → webhook → issue.<div class="m">Medir: tiempo a primera respuesta, % fixes aceptados</div></div>
+  <div class="case"><h3>5 · Docs y releases</h3>Webhook <code>pull_request.closed</code> → issue "actualiza docs"; rutina semanal → changelog + release notes → aprobación.<div class="m">Medir: docs desactualizados en retro</div></div>
+  <div class="case"><h3>6 · Onboarding a repo desconocido</h3>Primer issue: "explora y escribe ARCHITECTURE.md + comandos + riesgos" → se vuelve skill de la org del cliente.<div class="m">Medir: horas humanas ahorradas</div></div>
+  <div class="case"><h3>7 · Daily brief</h3>Rutina 07:00 → status card → Slack: cerrado, bloqueado, aprobaciones pendientes, gasto del mes.<div class="m">Reemplaza el standup del trabajo de agentes</div></div>
+  <div class="case"><h3>8 · Segunda revisión de PRs</h3>GitHub Code Review Bot (1005.0): puntaje 1–5, hallazgos inline, check "Paperclip Review" exigible en un ruleset. Segunda opinión, el merge sigue siendo humano.<div class="m">Medir: hallazgos reales vs falsos positivos</div></div>
+  <div class="case"><h3>9 · Slack como bandeja</h3>Mención en un hilo = tarea; las respuestas del board vuelven al hilo. Sólo miembros vinculados ordenan trabajo.<div class="m">Medir: tareas creadas desde Slack, tiempo de respuesta</div></div>
+  <div class="case"><h3>10 · QA visual</h3>Browser Use Cloud o skill agent-browser: el QA recorre la preview en un navegador visible desde la tarea, con takeover humano.<div class="m">Medir: bugs visuales antes del merge</div></div>
+  <div class="case"><h3>11 · Operar desde Claude Code</h3>Assistant Connection (MCP, experimental): <code>claude mcp add --transport http paperclip …</code> y cada dev crea, consulta y comenta tareas sin abrir la UI.<div class="m">Conecta como la persona, no como un agente</div></div>
+  <div class="case"><h3>12 · Auditoría de seguridad</h3>Plantilla oficial Trail of Bits recortada a 3–5 agentes, repo en lectura, preset low_trust_review + sandbox, rutina mensual.<div class="m">Medir: hallazgos confirmados por un humano</div></div>
+  <div class="case"><h3>13 · Mantenimiento OSS "inbox zero"</h3>Plantilla comunitaria micronaut-agent-company: 9 roles, GitHub sync, Renovate, workspaces aislados.<div class="m">Medir: issues sin respuesta &gt; 48 h</div></div>
+  <div class="case"><h3>14 · DevOps/IaC por tickets</h3>Equipo sobre Proxmox (Terraform + Ansible + Tailscale): router en Haiku, SRE/Platform/Security en Sonnet, kubectl en lectura hasta aprobar un "access task", cero timers.<div class="m">Patrón "router delgado", no "CEO que piensa"</div></div>
+  <div class="case"><h3>15 · Noche en tres carriles</h3>Guía oficial del 12 oct: avanza y se detiene (refactors, tests, PRs draft) · prepara y decide un humano (merges, releases, migraciones) · espera (lo ambiguo). Cada límite en la capa que lo aplica.<div class="m">Checklist matutino: blocked, in_review, costos, activity log</div></div>
+</div>
+
+<h2>Scorecard de viabilidad</h2>
+<div class="tablewrap"><table>
+<tr><th>Dimensión</th><th>Nota</th><th>Evidencia</th></tr>
+<tr><td>Gobierno (presupuestos, aprobaciones, auditoría, org)</td><td class="stars"><b>★★★★★</b></td><td>Nadie más lo combina en un producto MIT self-hosted</td></tr>
+<tr><td>Integración con tus runtimes</td><td class="stars"><b>★★★★★</b></td><td>12 adapters; suscripciones y API keys; Sonnet 5.5 y GPT-6.1 Sol</td></tr>
+<tr><td>GitHub</td><td class="stars"><b>★★★★</b><span>★</span></td><td>Worktrees, GitHub App, Code Review Bot (experimental); worktrees aún tras flag experimental con bugs abiertos</td></tr>
+<tr><td>Jira</td><td class="stars"><b>★★</b><span>★★★</span></td><td>Sólo acceso MCP; sin sync; ⚪ en roadmap sin fecha</td></tr>
+<tr><td>Slack</td><td class="stars"><b>★★★</b><span>★★</span></td><td>Reconstruido en oct (bidireccional) pero experimental y "no completamente funcional"; plugin comunitario cubre notificaciones</td></tr>
+<tr><td>Madurez / estabilidad</td><td class="stars"><b>★★</b><span>★★★</span></td><td>7 meses; tres releases con breaking changes en tres semanas; ~3k issues abiertas, 797 abiertas vs 95 cerradas en 30 días; mejor manejo de loops en 1005/1012</td></tr>
+<tr><td>Seguridad</td><td class="stars"><b>★★</b><span>★★★</span></td><td>CVE-2026-41679 (RCE, CVSS 10) y CVE-2026-77087 (DNS rebinding, 9.6), corregidos, ninguno nuevo; full auto por defecto desde 1001.0; agentes sin sandbox por defecto</td></tr>
+<tr><td>Sostenibilidad</td><td class="stars"><b>★★</b><span>★★★</span></td><td>Un mantenedor con el 61 % de los commits; financiación no divulgada; Cloud en waitlist; Paperclip.inc cerró el 2 oct</td></tr>
+<tr><td>Costo total</td><td class="stars"><b>★★★★</b><span>★</span></td><td>Software gratis; infra US$20–40/mes; modelos US$20–500/mes según disciplina; export a markdown = sin lock-in</td></tr>
+<tr><td>Comunidad y docs</td><td class="stars"><b>★★★★</b><span>★</span></td><td>Docs extensas, blog con guías de operación, 8k Discord, 16 plantillas oficiales, decenas de plugins, 3.9M vistas en YouTube; mucho ruido</td></tr>
+</table></div>
+
+<h2>Lo que dice la comunidad</h2>
+<div class="cols">
+  <div class="card"><h3><span class="chip good">A favor</span></h3><ul style="margin:0;padding-left:18px;font-size:14px">
+    <li>eesel: "uno de los proyectos open source más impresionantes del año… un control plane, no un agente".</li>
+    <li>Vivek Shetye: org CEO/CTO/Eng/QA/Security (Hermes + Codex) entregó un MVP de CRM; "no construye un SaaS desde un prompt".</li>
+    <li>Moe Lueker: de US$236 a US$11/mes moviendo roles a modelos baratos.</li>
+    <li>Effloow: 14 agentes, sitio Laravel con infra &lt; US$20/mes; día 1 inventaron métricas → regla anti-fabricación.</li>
+    <li>NetworkChuck (24 sep, 1.34M vistas): departamento de IT con Claude Code, Codex, Hermes y OpenClaw; 100+ creadores y 3.9M vistas según la cuenta oficial.</li></ul></div>
+  <div class="card"><h3><span class="chip bad">En contra</span></h3><ul style="margin:0;padding-left:18px;font-size:14px">
+    <li>Nick Saraev (109k vistas): "hype city"; Stork: "teatro de productividad", "cohete v0.3".</li>
+    <li>Aron Prins: US$130 perdidos; causa raíz: "souls" de un párrafo.</li>
+    <li>Issues: #373 tokens ociosos por noche, #390 sin circuit breaker, #3154 "1 % de Max por minuto", #7601 secreto en UI, #11276 hard stop sólo entre runs.</li>
+    <li>Oct: Preuve ("código gratis, facturas reales", US$20–100/mes, bypass de Codex en true); Felipe Fontoura (13 agentes, seis semanas de fallos); discusión #13999 (3M tokens en el onboarding).</li>
+    <li>Hacker News lo ignoró: ninguna publicación pasó de 6 puntos.</li></ul></div>
+</div>
+
+<h2>Alternativas</h2>
+<div class="tablewrap"><table>
+<tr><th>Producto</th><th>Open source</th><th>Org de agentes</th><th>Budgets por agente</th><th>Aprobaciones</th><th>GitHub / Jira / Slack</th><th>Madurez</th><th>Para quién</th></tr>
+<tr><td><b>Paperclip</b></td><td>MIT, self-host</td><td>Sí</td><td>Sí, con parada</td><td>Runtime (review + approval)</td><td>Sí / MCP / experimental</td><td>7 meses, churn</td><td>Gobierno multi-runtime; solo founders</td></tr>
+<tr><td><b>Multica</b></td><td>Source-available</td><td>Parcial (squads)</td><td>Básico + protección runaway (v0.6)</td><td>Revisión de tareas</td><td>Sí / – / Sí</td><td>7 meses, 52.6k ★</td><td>Tablero humanos+agentes sin metáfora de empresa</td></tr>
+<tr><td><b>Zeron</b></td><td>OSS (Rust)</td><td>No</td><td>No</td><td>–</td><td>Claude Code/Codex/Cursor/Devin</td><td>Nuevo, 3.2k ★</td><td>Vigilar</td></tr>
+<tr><td><b>OpenAI Symphony</b></td><td>Apache-2.0</td><td>No</td><td>No</td><td>Sólo PR</td><td>Linear (forks: Jira)</td><td>Preview, 27.6k ★, quieto desde sep</td><td>Linear + Codex</td></tr>
+<tr><td><b>GitHub Agent HQ</b></td><td>No</td><td>No</td><td>Créditos por plan (1 = US$0.01)</td><td>Sólo PR + code review por API</td><td>Nativo / – / Sí</td><td>Preview, Microsoft; Universe 28–29 oct</td><td>"Asigna issue → PR" sin infra</td></tr>
+<tr><td><b>Linear Agents + Cursor/Codex</b></td><td>No</td><td>No</td><td>Por asiento</td><td>Sólo PR</td><td>Nativo / – / Sí</td><td>GA; Cursor Projects = coordinador vendor</td><td>Backlog en Linear o equipo Cursor</td></tr>
+<tr><td><b>Atlassian Rovo Dev</b></td><td>No</td><td>No</td><td>Créditos (US$20/dev)</td><td>Sólo PR</td><td>– / Nativo / Sí</td><td>GA</td><td>Jira como centro, cero infra</td></tr>
+<tr><td><b>Devin</b></td><td>No</td><td>No</td><td>ACUs</td><td>Plan approval + PR</td><td>Sí / Sí / Sí</td><td>GA enterprise</td><td>Cumplimiento estricto; caro</td></tr>
+<tr><td>Conductor · Superset · Vibe Kanban</td><td>Mixto</td><td>No</td><td>No</td><td>Diff review</td><td>Sí / Linear / –</td><td>Por persona</td><td>Cockpit local de worktrees; complemento</td></tr>
+</table></div>
+<div class="cols" style="margin-top:14px">
+  <div class="card"><h3>Recomendación A</h3><p style="font-size:14px;margin:0">Claude Code + Codex para trabajo interactivo; GitHub Agent HQ para "issue → PR" sin infra; <b>Paperclip self-hosted</b> como runner 24/7 del backlog agent-ready, guardián de gasto y auditoría. Si en 3 meses sólo usas "issue → PR", baja a Agent HQ.</p></div>
+  <div class="card"><h3>Recomendación B</h3><p style="font-size:14px;margin:0"><b>Paperclip es la mejor de su categoría</b> para un solo founder: CEO → equipo, presupuestos y aprobaciones sobre suscripciones Max/Pro, 3–4 agentes, CEO una vez al día.</p></div>
+  <div class="card"><h3>Recomendación C</h3><p style="font-size:14px;margin:0">Una org por cliente para quienes acepten self-hosting. Para clientes con SOC2/SSO: Copilot Enterprise + Agent HQ, Devin/Factory, Rovo Dev; Paperclip sólo interno tras Tailscale.</p></div>
+</div>
+
+<h2>Los 10 mandamientos</h2>
+<ol class="rules">
+  <li>Versión ≥ 2026.1012.0, modo <code>authenticated</code>, UI tras Tailscale o TLS, puerto 3100 cerrado. Full auto es el default: restringe a los agentes que leen input hostil.</li>
+  <li>Postgres 17 externo, backup diario y <code>secrets/master.key</code> fuera del servidor.</li>
+  <li>Empieza con 3–4 agentes desde <code>superpowers</code> o <code>gstack</code>; añade sólo donde aparezca un cuello de botella.</li>
+  <li>AGENTS.md tipo "job posting" (deberes, autoridad, límites, qué NO hace) con regla anti-fabricación y reglas PR-driven.</li>
+  <li>Workspaces aislados y <code>maxConcurrentRuns: 1</code> antes del segundo agente ingeniero.</li>
+  <li>Presupuesto con <code>hardStopEnabled</code> en empresa y agentes el día 1, más límites en las consolas del proveedor (el tope actúa entre runs) y API key de respaldo para suscripciones (expiran a las ~8 h, bug abierto).</li>
+  <li>Timers sólo en managers y en horario laboral; ingenieros sólo on-demand. Construye la org con todo pausado y activa de uno en uno.</li>
+  <li>Review por agente de otra familia de modelos + aprobación humana; merge sólo por humanos con branch protection.</li>
+  <li>Issues agent-ready ≤ 400 líneas con criterios observables y condición de parada.</li>
+  <li>Mide desde el día 1: PRs fusionados, rondas de review, minutos humanos por PR, costo por PR. Nadie ha publicado estos números.</li>
+</ol>
+
+<h2>Fuentes principales</h2>
+<ul class="src">
+  <li><a href="https://github.com/paperclipai/paperclip">Repo oficial</a> · <a href="https://docs.paperclip.ing/">Docs</a> · <a href="https://paperclip.ing/">paperclip.ing</a> · <a href="https://paperclipai.net/">paperclipai.net (sitio antiguo)</a></li>
+  <li><a href="https://github.com/paperclipai/companies">Plantillas oficiales de empresas</a> · <a href="https://github.com/gsxdsm/awesome-paperclip">awesome-paperclip</a></li>
+  <li><a href="https://docs.paperclip.ing/how-to/connect-agent-to-github/">Conectar agente a GitHub</a> · <a href="https://docs.paperclip.ing/how-to/deploy-to-vps-or-fly/">Deploy VPS/Fly</a> · <a href="https://docs.paperclip.ing/guides/power/execution-policy/">Execution policy</a> · <a href="https://docs.paperclip.ing/connectors/github-review-bot-setup/">Review bot</a></li>
+  <li><a href="https://paperclip.ing/blog/who-is-using-paperclip-on-github/">Quién usa Paperclip (estudio oficial)</a> · <a href="https://paperclip.ing/blog/ai-agent-governance-platform-buyers-guide/">Guía del comprador (por Paperclip)</a> · <a href="https://paperclip.ing/blog/run-ai-agents-unattended-overnight/">Running AI Agents Overnight</a></li>
+  <li><a href="https://github.com/paperclipai/paperclip/releases/tag/v2026.1012.0">v2026.1012.0</a> · <a href="https://github.com/paperclipai/paperclip/blob/master/doc/public-mcp.md">Assistant Connection (MCP)</a> · <a href="https://github.com/paperclipai/paperclip/security/advisories">Advisories de seguridad</a> · <a href="https://thehackernews.com/2026/08/paperclip-ai-flaws-let-attackers-run.html">The Hacker News sobre los RCE</a></li>
+  <li><a href="https://www.youtube.com/watch?v=7RVf25Rg0Mc">NetworkChuck</a> · <a href="https://www.youtube.com/watch?v=C3-4llQYT8o">Greg Isenberg, demo en vivo</a> · <a href="https://www.youtube.com/watch?v=QufcrM79snw">Nick Saraev, crítica</a> · <a href="https://ossstartuppodcast.substack.com/p/episode-201-building-your-agent-army">OSS Startup Podcast</a></li>
+  <li><a href="https://www.eesel.ai/blog/paperclip-ai-review">eesel review</a> · <a href="https://preuve.ai/blog/paperclip-ai-review">Preuve review</a> · <a href="https://felipefontoura.com/articles/paperclip-ai-agent-company/">Felipe Fontoura</a> · <a href="https://www.stork.ai/blog/ai-wont-run-your-company-heres-why">Stork.AI crítica</a> · <a href="https://github.com/paperclipai/paperclip/discussions/13999">Discusión #13999</a></li>
+  <li><a href="https://dev.to/vivek_shetye/i-built-an-ai-company-that-shipped-an-app-from-scratch-using-paperclip-ai-3a5k">Caso: MVP de CRM</a> · <a href="https://dev.to/jangwook_kim_e31e7291ad98/how-we-built-a-company-powered-by-14-ai-agents-using-paperclip-4bg6">Caso: Effloow</a> · <a href="https://github.com/alvarosanchez/micronaut-agent-company">micronaut-agent-company</a> · <a href="https://github.com/luisbrancher/homelab-paperclip-agents">Proxmox homelab</a></li>
+  <li><a href="https://github.com/multica-ai/multica">Multica</a> · <a href="https://github.com/openai/symphony">OpenAI Symphony</a> · <a href="https://github.com/zeronsh/zeron">Zeron</a> · <a href="https://linear.app/integrations/agents">Linear Agents</a> · <a href="https://www.atlassian.com/software/rovo-dev/pricing">Rovo Dev</a> · <a href="https://devin.ai/pricing">Devin</a></li>
+</ul>
+<footer>Elaborado con documentación oficial, Context7 (/paperclipai/paperclip-docs), GitHub, blog oficial y fuentes comunitarias; revisado el 12 de octubre de 2026. Reddit no fue accesible; sus opiniones se citan de segunda mano. Detalle completo, comandos y plantillas en el repo paperclip-roadmap.</footer>
+</div>

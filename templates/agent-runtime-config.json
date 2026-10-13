@@ -1,5 +1,5 @@
 {
-  "_comment": "Config recomendada para agentes coder con claude_local/codex_local. Fuente: docs oficiales + issues #6955/#7641/#11276.",
+  "_comment": "Config recomendada para agentes coder con claude_local/codex_local. Fuente: docs oficiales + issues #6955/#7641/#11276. Desde 2026.1001.0 los harnesses corren en full auto por defecto: dangerouslySkipPermissions=true (Claude) y, en Codex engine=cli, dangerouslyBypassApprovalsAndSandbox=true. Para agentes de baja confianza (leen PRs externos/tickets) pon dangerouslySkipPermissions=false o usa sandbox + preset low_trust_review.",
   "runtimeConfig": {
     "heartbeat": { "enabled": false, "intervalSec": 3600, "cooldownSec": 10, "wakeOnDemand": true, "wakeOnAssignment": true, "maxConcurrentRuns": 1 }
   },
